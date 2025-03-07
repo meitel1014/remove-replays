@@ -9,7 +9,7 @@ OBSのVLCビデオソースのプレイリストを、ホットキー一発で�
 # 使い方
 1. [remove-replays.lua](https://github.com/meitel1014/remove-replays/blob/main/remove-replays.lua) ファイルをダウンロード、適当な場所に配置
 
-（ファイルを開いて右上のダウンロードボタンが便利）
+（ファイルを開いて右上のダウンロードボタンが便利です。Gitが使える方はgit cloneでもOKです）
 <img src="images/ダウンロード.png" width="500px" />
 
 2. OBSの「ツール」→「スクリプト」を選択
