@@ -2,6 +2,8 @@ obs         = obslua
 source_name = ""
 hotkey_id   = obs.OBS_INVALID_HOTKEY_ID
 attempts    = 0
+notify      = false
+script_path = ""
 
 ----------------------------------------------------------
 
@@ -14,6 +16,16 @@ function remove_replays(pressed)
 	if source_id ~= "vlc_source" then
 		return
 	elseif source ~= nil then
+		local orig_settings = obs.obs_source_get_settings(source)
+		local orig_playlist = obs.obs_data_get_array(orig_settings, "playlist")
+		if obs.obs_data_array_count(orig_playlist) == 0 then
+			empty = true
+			message = "リプレイがありません"
+		else
+			empty = false
+			message = "リプレイを削除しました"
+		end
+
 		local settings = obs.obs_data_create()
 		-- "playlist"
 		array = obs.obs_data_array_create()
@@ -24,6 +36,29 @@ function remove_replays(pressed)
 		obs.obs_source_update(source, settings)
 		obs.obs_data_array_release(array)
 
+		local title = "リプレイ削除"
+		if notify then
+			obs.script_log(obs.LOG_INFO, message)
+			if package.config:sub(1,1) == '\\' then
+				-- Windows
+				exec = 'start /min conhost powershell -ExecutionPolicy Bypass -File "' .. script_path .. 'windows-notification.ps1"'
+				if empty then
+					exec = exec .. " -Empty"
+				end
+				os.execute(exec)
+			elseif package.config:sub(1,1) == '/' then
+				-- macOS or Linux
+				if os.execute('uname -s | grep Darwin > /dev/null') then
+					-- macOS
+					os.execute('osascript -e \'display notification "' .. message .. '" with title "' .. title .. '"\'')
+				else
+					-- Linux
+					os.execute('notify-send "' .. title .. '" "' .. message .. '"')
+				end
+			end
+		end
+
+		obs.obs_data_release(orig_settings)
 		obs.obs_data_release(settings)
 		obs.obs_source_release(source)
 	end
@@ -35,6 +70,7 @@ end
 -- A function named script_update will be called when settings are changed
 function script_update(settings)
 	source_name = obs.obs_data_get_string(settings, "source")
+	notify = obs.obs_data_get_bool(settings, "notification_enabled")
 end
 
 -- A function named script_description returns the description shown to
@@ -61,6 +97,7 @@ function script_properties()
 			end
 		end
 	end
+	obs.obs_properties_add_bool(props, "notification_enabled", "通知を有効化")
 	obs.source_list_release(sources)
 
 	return props
@@ -72,6 +109,8 @@ function script_load(settings)
 	local hotkey_save_array = obs.obs_data_get_array(settings, "remove_replays.trigger")
 	obs.obs_hotkey_load(hotkey_id, hotkey_save_array)
 	obs.obs_data_array_release(hotkey_save_array)
+	local info = debug.getinfo(1, "S")
+	script_path = info.source:match[[^@?(.*[\/])[^\/]-$]]
 end
 
 -- A function named script_save will be called when the script is saved
