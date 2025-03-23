@@ -3,6 +3,7 @@ source_name = ""
 hotkey_id   = obs.OBS_INVALID_HOTKEY_ID
 attempts    = 0
 notify      = false
+sound       = true
 script_path = ""
 
 ----------------------------------------------------------
@@ -18,13 +19,7 @@ function remove_replays(pressed)
 	elseif source ~= nil then
 		local orig_settings = obs.obs_source_get_settings(source)
 		local orig_playlist = obs.obs_data_get_array(orig_settings, "playlist")
-		if obs.obs_data_array_count(orig_playlist) == 0 then
-			empty = true
-			message = "リプレイがありません"
-		else
-			empty = false
-			message = "リプレイを削除しました"
-		end
+		empty = obs.obs_data_array_count(orig_playlist) == 0
 
 		local settings = obs.obs_data_create()
 		-- "playlist"
@@ -36,32 +31,53 @@ function remove_replays(pressed)
 		obs.obs_source_update(source, settings)
 		obs.obs_data_array_release(array)
 
-		local title = "リプレイ削除"
 		if notify then
-			obs.script_log(obs.LOG_INFO, message)
-			if package.config:sub(1,1) == '\\' then
-				-- Windows
-				exec = 'start /min conhost powershell -ExecutionPolicy Bypass -File "' .. script_path .. 'windows-notification.ps1"'
-				if empty then
-					exec = exec .. " -Empty"
-				end
-				os.execute(exec)
-			elseif package.config:sub(1,1) == '/' then
-				-- macOS or Linux
-				if os.execute('uname -s | grep Darwin > /dev/null') then
-					-- macOS
-					os.execute('osascript -e \'display notification "' .. message .. '" with title "' .. title .. '"\'')
-				else
-					-- Linux
-					os.execute('notify-send "' .. title .. '" "' .. message .. '"')
-				end
-			end
+			send_notification(empty)
 		end
 
 		obs.obs_data_release(orig_settings)
 		obs.obs_data_release(settings)
 		obs.obs_source_release(source)
 	end
+end
+
+function send_notification(empty)
+	local title = "リプレイ削除"
+	local message = ""
+	if empty then
+		message = "リプレイがありません"
+	else
+		message = "リプレイを削除しました"
+	end
+
+	obs.script_log(obs.LOG_INFO, message)
+	exec = ""
+	if package.config:sub(1,1) == '\\' then
+		-- Windows
+		exec = 'start /min conhost powershell -ExecutionPolicy Bypass -File "' .. script_path .. 'windows-notification.ps1"'
+		if empty then
+			exec = exec .. " -Empty"
+		end
+		if not sound then
+			exec = exec .. " -Silent"
+		end
+	elseif package.config:sub(1,1) == '/' then
+		-- macOS or Linux
+		if os.execute('uname -s | grep Darwin > /dev/null') then
+			-- macOS
+			if sound then
+				exec = 'osascript -e \'display notification "' .. message .. '" with title "' .. title .. '"\''
+			else
+				exec = 'osascript -e \'display notification "' .. message .. '" with title "' .. title .. '" with sound ""\''
+			end
+
+			os.execute('osascript -e \'display notification "' .. message .. '" with title "' .. title .. '"\'')
+		else
+			-- Linux
+			exec = 'notify-send "' .. title .. '" "' .. message .. '"'
+		end
+	end
+	os.execute(exec)
 end
 
 
@@ -71,6 +87,7 @@ end
 function script_update(settings)
 	source_name = obs.obs_data_get_string(settings, "source")
 	notify = obs.obs_data_get_bool(settings, "notification_enabled")
+	sound = obs.obs_data_get_bool(settings, "notification_sound")
 end
 
 -- A function named script_description returns the description shown to
@@ -98,6 +115,7 @@ function script_properties()
 		end
 	end
 	obs.obs_properties_add_bool(props, "notification_enabled", "通知を有効化")
+	obs.obs_properties_add_bool(props, "notification_sound", "通知音を鳴らす")
 	obs.source_list_release(sources)
 
 	return props

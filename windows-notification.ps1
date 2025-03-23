@@ -1,4 +1,4 @@
-﻿Param ([switch]$Empty)
+﻿Param ([switch]$Empty, [switch]$Silent)
 
 function Conv2SJIS($UTF8String) {
     $ByteData = [System.Text.Encoding]::UTF8.GetBytes($UTF8String)
@@ -18,6 +18,10 @@ if ($Empty) {
 } else {
     $message = "リプレイを削除しました"
 }
+$audio = ""
+if ($Silent) {
+    $audio = '<audio silent="true"/>'
+}
 
 $content = @"
 <?xml version="1.0" encoding="utf-8"?>
@@ -28,6 +32,7 @@ $content = @"
         <text>$($message)</text>
     </binding>
 </visual>
+$($audio)
 </toast>
 "@
 $xml = New-Object Windows.Data.Xml.Dom.XmlDocument
