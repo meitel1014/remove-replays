@@ -36,7 +36,8 @@ Windowsで後述の通知機能を使いたい方は、[windows-notification.ps1
 
 「通知音を鳴らす」にチェックを入れると音も鳴ります。配信に余計な音を入れたくない場合はチェックを外してください。
 
-⚠Windowsの方のみ、remove-replays.luaファイルと同じフォルダに[windows-notification.ps1](https://github.com/meitel1014/remove-replays/blob/main/windows-notification.ps1)ファイルをダウンロードしないと動作しません！
+> [!WARNING]
+> Windowsの方のみ、remove-replays.luaファイルと同じフォルダに[windows-notification.ps1](https://github.com/meitel1014/remove-replays/blob/main/windows-notification.ps1)ファイルをダウンロードしないと動作しません！
 
 <img src="images/通知.png" width="300px" />
 
