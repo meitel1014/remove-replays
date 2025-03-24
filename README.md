@@ -12,6 +12,9 @@ OBSのVLCビデオソースのプレイリストを、ホットキー一発で�
 （ファイルを開いて右上のダウンロードボタンが便利です。Gitが使える方はgit cloneでもOKです）
 <img src="images/ダウンロード.png" width="500px" />
 
+Windowsで後述の通知機能を使いたい方は、[windows-notification.ps1](https://github.com/meitel1014/remove-replays/blob/main/windows-notification.ps1) ファイルも同じ場所にダウンロードしてください。
+（通知機能が不要な方や、MacなどでOBSを使っている方は不要です。）
+
 2. OBSの「ツール」→「スクリプト」を選択
 
 <img src="images/OBSツール.png" width="150px" />
@@ -28,7 +31,16 @@ OBSのVLCビデオソースのプレイリストを、ホットキー一発で�
 
 ここまで設定したら、6. で設定したホットキーを押すことでリプレイ映像が全てソース上から削除されます。（録画ファイル自体は削除されません）
 
-## 注意
+## 通知機能
+使い方の5.の画面で、「通知を有効化」にチェックを入れると、ホットキーを押した時に通知を鳴らすことができます。
+
+「通知音を鳴らす」にチェックを入れると音も鳴ります。配信に余計な音を入れたくない場合はチェックを外してください。
+
+⚠Windowsの方のみ、remove-replays.luaファイルと同じフォルダに[windows-notification.ps1](https://github.com/meitel1014/remove-replays/blob/main/windows-notification.ps1)ファイルをダウンロードしないと動作しません！
+
+<img src="images/通知.png" width="300px" />
+
+# 注意
 スクリプトの追加はシーンコレクションに紐づいているようです。
 
 スクリプトを追加したものと別のシーンコレクションを使う場合、使い方の2.から設定し直してください。
