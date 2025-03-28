@@ -66,9 +66,9 @@ function send_notification(empty)
 		if os.execute('uname -s | grep Darwin > /dev/null') then
 			-- macOS
 			if sound then
-				exec = 'osascript -e \'display notification "' .. message .. '" with title "' .. title .. '"\''
+				exec = 'osascript -e \'display notification "' .. message .. '" with title "' .. title .. '" sound name ""\''
 			else
-				exec = 'osascript -e \'display notification "' .. message .. '" with title "' .. title .. '" with sound ""\''
+				exec = 'osascript -e \'display notification "' .. message .. '" with title "' .. title .. '"\''
 			end
 
 			os.execute('osascript -e \'display notification "' .. message .. '" with title "' .. title .. '"\'')
